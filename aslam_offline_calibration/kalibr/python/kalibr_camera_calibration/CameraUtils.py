@@ -413,7 +413,7 @@ def plotOutlierCorners(cself, removedOutlierCorners, fno=1, clearFigure=True, ti
         pl.imshow(I, cmap='Greys')
         
 
-def generateReport(cself, filename="report.pdf", showOnScreen=True, graph=None, removedOutlierCorners=None):
+def generateReport(cself, filename="report.pdf", showOnScreen=True, graph=None, numViews=None, removedOutlierCorners=None):
     
     #plotter
     figs = list()
@@ -422,7 +422,7 @@ def generateReport(cself, filename="report.pdf", showOnScreen=True, graph=None, 
     
     #Output calibration results in text form.
     sstream = StringIO()
-    printParameters(cself, sstream)
+    printParameters(cself, sstream, numViews, removedOutlierCorners)
     text = [line for line in StringIO(sstream.getvalue())]
     linesPerPage = 35
     
@@ -637,11 +637,11 @@ def exportPoses(cself, filename):
         print("{:.0f},".format(1e9 * view.timestamp) + ",".join(map("{:.6f}".format, position)) \
                + "," + ",".join(map("{:.6f}".format, orientation)) , file=f)
 
-def saveResultTxt(cself, filename="camera_calibration_result.txt"):
+def saveResultTxt(cself, filename="camera_calibration_result.txt", numViews=None, removedOutlierCorners=None):
     f1=open(filename, 'w')
-    printParameters(cself, f1)
+    printParameters(cself, f1, numViews, removedOutlierCorners)
 
-def printParameters(cself, dest=sys.stdout):
+def printParameters(cself, dest=sys.stdout, numViews=None, removedOutlierCorners=None):
 
     print("Calibration results ", file=dest)
     print("====================", file=dest)
@@ -681,13 +681,19 @@ def printParameters(cself, dest=sys.stdout):
         print("    t: %s +- %s" % (T.t(), np.array(dt)), file=dest)
         print(file=dest)
     
-    print("", file=dest)
-    print("", file=dest)
     print("Target configuration", file=dest)
     print("====================", file=dest)
-    print("", file=dest)
-
     cself.cameras[0].ctarget.targetConfig.printDetails(dest)
+
+    if (numViews is not None):
+        print("", file=dest)
+        print("Info ", file=dest)
+        print("====================", file=dest)
+        print("Processed images: %i" % numViews, file=dest)
+        print("Used images: %i" % cself.estimator.getNumBatches(), file=dest)
+        if removedOutlierCorners is not None:
+            print("Outlier corners: %i" % len(removedOutlierCorners), file=dest)
+        print("", file=dest)
 
 def printDebugEnd(cself):
     print("")

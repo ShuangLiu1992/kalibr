@@ -400,7 +400,8 @@ def main():
                 sm.logWarn("Removed {0} outlier corners.".format(len(removedOutlierCorners)) )             
             print("")
             print("Processed {0} images with {1} images used".format(numViews, calibrator.estimator.getNumBatches()))
-            kcc.printParameters(calibrator)
+            print("")
+            kcc.printParameters(calibrator, numViews=numViews, removedOutlierCorners=removedOutlierCorners)
             print("")
             
             if parsed.verbose and len(calibrator.baselines)>1:
@@ -417,7 +418,7 @@ def main():
             
             #save results to file
             resultFileTxt = bagtag + "-results-cam.txt"
-            kcc.saveResultTxt(calibrator, filename=resultFileTxt)
+            kcc.saveResultTxt(calibrator, filename=resultFileTxt, numViews=numViews, removedOutlierCorners=removedOutlierCorners)
             print("  Detailed results written to file: {0}".format(resultFileTxt))
             
             #generate report
@@ -427,7 +428,7 @@ def main():
             G=None; 
             if numCams>1: 
                 G=graph
-            kcc.generateReport(calibrator, reportFile, showOnScreen=not parsed.dontShowReport, graph=G, removedOutlierCorners=removedOutlierCorners);
+            kcc.generateReport(calibrator, reportFile, showOnScreen=not parsed.dontShowReport, graph=G, numViews=numViews, removedOutlierCorners=removedOutlierCorners);
             print("  Report written to {0}".format(reportFile))
             print("")
             
